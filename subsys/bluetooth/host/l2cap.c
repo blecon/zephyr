@@ -1088,10 +1088,6 @@ static uint16_t l2cap_chan_accept(struct bt_conn *conn,
 	/* Update state */
 	bt_l2cap_chan_set_state(*chan, BT_L2CAP_CONNECTED);
 
-	if ((*chan)->ops->connected) {
-		(*chan)->ops->connected(*chan);
-	}
-
 	return BT_L2CAP_LE_SUCCESS;
 }
 
@@ -1144,6 +1140,7 @@ static void le_conn_req(struct bt_l2cap *l2cap, uint8_t ident,
 	mtu = sys_le16_to_cpu(req->mtu);
 	mps = sys_le16_to_cpu(req->mps);
 	credits = sys_le16_to_cpu(req->credits);
+	result = BT_L2CAP_LE_ERR_PSM_NOT_SUPP;
 
 	LOG_DBG("psm 0x%02x scid 0x%04x mtu %u mps %u credits %u", psm, scid, mtu, mps, credits);
 
@@ -1194,6 +1191,11 @@ static void le_conn_req(struct bt_l2cap *l2cap, uint8_t ident,
 
 rsp:
 	l2cap_send(conn, BT_L2CAP_CID_LE_SIG, buf);
+
+	/* Raise connected callback on success */
+	if ((result == BT_L2CAP_LE_SUCCESS) && (chan->ops->connected != NULL)) {
+		chan->ops->connected(chan);
+	}
 }
 
 #if defined(CONFIG_BT_L2CAP_ECRED)
@@ -1309,6 +1311,13 @@ response:
 callback:
 	if (ecred_cb && ecred_cb->ecred_conn_req) {
 		ecred_cb->ecred_conn_req(conn, result, psm);
+	}
+
+	for (i = 0; i < req_cid_count; i++) {
+		/* Raise connected callback for established channels */
+		if ((dcid[i] != 0x00) && (chan[i]->ops->connected != NULL)) {
+			chan[i]->ops->connected(chan[i]);
+		}
 	}
 }
 
