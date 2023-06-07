@@ -1129,6 +1129,7 @@ static void le_conn_req(struct bt_l2cap *l2cap, uint8_t ident,
 	struct bt_l2cap_le_conn_rsp *rsp;
 	uint16_t psm, scid, mtu, mps, credits;
 	uint16_t result;
+	bool rsp_queued = false;
 
 	if (buf->len < sizeof(*req)) {
 		LOG_ERR("Too small LE conn req packet size");
@@ -1190,10 +1191,16 @@ static void le_conn_req(struct bt_l2cap *l2cap, uint8_t ident,
 	rsp->result = BT_L2CAP_LE_SUCCESS;
 
 rsp:
-	l2cap_send(conn, BT_L2CAP_CID_LE_SIG, buf);
+	if (bt_l2cap_send(conn, BT_L2CAP_CID_LE_SIG, buf)) {
+		net_buf_unref(buf);
+		goto callback;
+	}
 
+	rsp_queued = true;
+
+callback:
 	/* Raise connected callback on success */
-	if ((result == BT_L2CAP_LE_SUCCESS) && (chan->ops->connected != NULL)) {
+	if (rsp_queued && (result == BT_L2CAP_LE_SUCCESS) && (chan->ops->connected != NULL)) {
 		chan->ops->connected(chan);
 	}
 }
@@ -1213,6 +1220,7 @@ static void le_ecred_conn_req(struct bt_l2cap *l2cap, uint8_t ident,
 	uint16_t scid, dcid[L2CAP_ECRED_CHAN_MAX_PER_REQ];
 	int i = 0;
 	uint8_t req_cid_count;
+	bool rsp_queued = false;
 
 	/* set dcid to zeros here, in case of all connections refused error */
 	memset(dcid, 0, sizeof(dcid));
@@ -1306,17 +1314,23 @@ response:
 
 	net_buf_add_mem(buf, dcid, sizeof(scid) * req_cid_count);
 
-	l2cap_send(conn, BT_L2CAP_CID_LE_SIG, buf);
+	if (bt_l2cap_send(conn, BT_L2CAP_CID_LE_SIG, buf)) {
+		net_buf_unref(buf);
+		goto callback;
+	}
+
+	rsp_queued = true;
 
 callback:
 	if (ecred_cb && ecred_cb->ecred_conn_req) {
 		ecred_cb->ecred_conn_req(conn, result, psm);
 	}
-
-	for (i = 0; i < req_cid_count; i++) {
-		/* Raise connected callback for established channels */
-		if ((dcid[i] != 0x00) && (chan[i]->ops->connected != NULL)) {
-			chan[i]->ops->connected(chan[i]);
+	if (rsp_queued && result == BT_L2CAP_LE_SUCCESS) {
+		for (i = 0; i < req_cid_count; i++) {
+			/* Raise connected callback for established channels */
+			if ((dcid[i] != 0x00) && (chan[i]->ops->connected != NULL)) {
+				chan[i]->ops->connected(chan[i]);
+			}
 		}
 	}
 }
