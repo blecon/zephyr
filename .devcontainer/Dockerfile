@@ -44,8 +44,7 @@ RUN pip3 install \
 
 # Install BabbleSim dependencies
 RUN export DEBIAN_FRONTEND=noninteractive \
-     && apt-get -y install --no-install-recommends \
-     && apt-get install repo gcc-multilib libfftw3-dev
+     && apt-get -y install --no-install-recommends repo gcc-multilib libfftw3-dev
 
 # Fetch BabbleSim
 WORKDIR /opt/bsim/
