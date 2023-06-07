@@ -96,9 +96,16 @@ static void connect_l2cap_channel(void)
 
 	channel.chan.ops = &l2cap_ops;
 
-	err = bt_l2cap_chan_connect(default_conn, &channel.chan, server.psm);
-	if (err) {
-		FAIL("Failed to send ecred connection request (err %d)\n", err);
+	if (IS_ENABLED(CONFIG_BT_L2CAP_ECRED)) {
+		err = bt_l2cap_ecred_chan_connect(default_conn, chans, server.psm);
+		if (err) {
+			FAIL("Failed to send ecred connection request (err %d)\n", err);
+		}
+	} else {
+		err = bt_l2cap_chan_connect(default_conn, &channel.chan, server.psm);
+		if (err) {
+			FAIL("Failed to send connection request (err %d)\n", err);
+		}
 	}
 }
 
