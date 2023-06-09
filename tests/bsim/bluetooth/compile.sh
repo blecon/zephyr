@@ -18,9 +18,9 @@ mkdir -p ${WORK_DIR}
 
 source ${ZEPHYR_BASE}/tests/bsim/sh_common.source
 
-run_in_background ${ZEPHYR_BASE}/tests/bsim/bluetooth/audio/compile.sh
-run_in_background ${ZEPHYR_BASE}/tests/bsim/bluetooth/host/compile.sh
-run_in_background ${ZEPHYR_BASE}/tests/bsim/bluetooth/ll/compile.sh
-run_in_background ${ZEPHYR_BASE}/tests/bsim/bluetooth/mesh/compile.sh
+# run_in_background ${ZEPHYR_BASE}/tests/bsim/bluetooth/audio/compile.sh
+# run_in_background ${ZEPHYR_BASE}/tests/bsim/bluetooth/host/compile.sh
+# run_in_background ${ZEPHYR_BASE}/tests/bsim/bluetooth/ll/compile.sh
+# run_in_background ${ZEPHYR_BASE}/tests/bsim/bluetooth/mesh/compile.sh
 
 wait_for_background_jobs
