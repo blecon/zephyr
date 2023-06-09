@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.209.6/containers/cpp
 {
-	"name": "Blecon Gateway Firmware",
+	"name": "Blecon Zephyr devcontainer",
 	"build": {
 		"dockerfile": "Dockerfile"
 	},
@@ -22,7 +22,8 @@
 
 	"containerEnv": { 
 		"BSIM_OUT_PATH": "/opt/bsim/",
-		"BSIM_COMPONENTS_PATH": "/opt/bsim/components/"
+		"BSIM_COMPONENTS_PATH": "/opt/bsim/components/",
+		"ZEPHYR_BASE": "/workspaces/zephyr"
 	},
 
 	// "postStartCommand": "",

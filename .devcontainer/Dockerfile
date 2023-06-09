@@ -30,7 +30,7 @@ WORKDIR /opt
 
 # Install Zephyr toolchains
 RUN ARCH=`uname -m` \
-    && SDK_VERSION=0.16.0 \
+    && SDK_VERSION=0.16.1 \
     && SDK_MINIMAL_BUNDLE=zephyr-sdk-${SDK_VERSION}_linux-${ARCH}_minimal.tar.xz \
     && wget -q --show-progress --progress=dot:giga -N -O ${SDK_MINIMAL_BUNDLE}  https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${SDK_VERSION}/${SDK_MINIMAL_BUNDLE} \
     && tar -xJf ${SDK_MINIMAL_BUNDLE} \
@@ -53,4 +53,4 @@ RUN repo init -u https://github.com/BabbleSim/manifest.git -m everything.xml -b 
     && repo sync
 
 # Install BabbleSim
-RUN make everything -j 8
+RUN make everything -s -j 8
