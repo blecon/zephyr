@@ -29,6 +29,7 @@ NET_BUF_POOL_DEFINE(buf_pool, 1, DATA_SIZE, USER_DATA_SIZE, NULL);
 static void chan_connected_cb(struct bt_l2cap_chan *l2cap_chan)
 {
 	struct net_buf *buf;
+	int err;
 
 	/* Send data immediately on L2CAP connection */
 	buf = net_buf_alloc(&buf_pool, K_NO_WAIT);
@@ -92,6 +93,7 @@ static struct bt_l2cap_server server = {
 
 static void connect_l2cap_channel(void)
 {
+	struct bt_l2cap_chan *chans[] = {&channel.chan, NULL};
 	int err;
 
 	channel.chan.ops = &l2cap_ops;
@@ -253,7 +255,7 @@ static const struct bst_test_instance test_def[] = {
 	BSTEST_END_MARKER,
 };
 
-struct bst_test_list *test_main_l2cap_install(struct bst_test_list *tests)
+struct bst_test_list *test_main_l2cap_send_on_connect_install(struct bst_test_list *tests)
 {
 	return bst_add_tests(tests, test_def);
 }
