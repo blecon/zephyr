@@ -20,11 +20,9 @@ CREATE_FLAG(chan_connected);
 CREATE_FLAG(data_received);
 
 #define DATA_BYTE_VAL  0xBB
-#define DATA_SIZE      1
-#define USER_DATA_SIZE 0
 
 /* L2CAP channel buffer pool */
-NET_BUF_POOL_DEFINE(buf_pool, 1, DATA_SIZE, USER_DATA_SIZE, NULL);
+NET_BUF_POOL_DEFINE(buf_pool, 1, BT_L2CAP_SDU_BUF_SIZE(16), 8, NULL);
 
 static void chan_connected_cb(struct bt_l2cap_chan *l2cap_chan)
 {
