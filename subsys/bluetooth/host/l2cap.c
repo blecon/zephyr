@@ -2541,7 +2541,9 @@ static void l2cap_chan_le_recv(struct bt_l2cap_le_chan *chan,
 		return;
 	}
 
-	l2cap_chan_send_credits(chan, buf, 1);
+	if (bt_l2cap_chan_get_state(&chan->chan) == BT_L2CAP_CONNECTED) {
+		l2cap_chan_send_credits(chan, buf, 1);
+	}
 }
 
 static void l2cap_chan_recv_queue(struct bt_l2cap_le_chan *chan,
